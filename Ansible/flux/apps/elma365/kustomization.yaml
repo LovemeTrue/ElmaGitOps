@@ -1,0 +1,14 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: elma365
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./flux/apps/elma365
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: ansible
+    namespace: flux-system
+  targetNamespace: elma365

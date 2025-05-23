@@ -1,0 +1,22 @@
+---
+- name: Bootstrap Flux from MacOS
+  hosts: k8s_cluster
+  vars:
+    github_user: "LovemeTrue"
+    repo_name: "ElmaGitOps"
+  tasks:
+    - name: Install Flux CLI (если не установлен)
+      raw: |
+        curl -s https://fluxcd.io/install.sh | sudo bash
+        
+    - name: Bootstrap Flux
+      command: |
+        flux bootstrap github \
+          --owner={{ github_user }} \
+          --repository={{ repo_name }} \
+          --branch=main \
+          --path=./clusters/single-node \
+          --private=false \
+          --personal
+      environment:
+        GITHUB_TOKEN: "{{ secrets.GH_TOKEN }}"

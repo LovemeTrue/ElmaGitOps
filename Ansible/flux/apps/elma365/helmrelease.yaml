@@ -1,0 +1,16 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: elma365
+  namespace: elma365
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: elma365
+      sourceRef:
+        kind: HelmRepository
+        name: elma-repo
+        namespace: flux-system
+  valuesFiles:
+    - /values/values-elma365.yaml

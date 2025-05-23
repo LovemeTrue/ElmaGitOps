@@ -1,0 +1,9 @@
+root@kind:/home/kind/ansible-cluster/Ansible/flux/flux-system# flux reconcile kustomization flux-system --with-source --namespace=flux-system
+► annotating GitRepository flux-system in flux-system namespace
+✔ GitRepository annotated
+◎ waiting for GitRepository reconciliation
+✔ fetched revision main@sha1:288f8698c09f3904dd2c371fa5fd62fb192e0af4
+► annotating Kustomization flux-system in flux-system namespace
+✔ Kustomization annotated
+◎ waiting for Kustomization reconciliation
+✔ applied revision main@sha1:288f8698c09f3904dd2c371fa5fd62fb192e0af4

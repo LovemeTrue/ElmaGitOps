@@ -1,0 +1,48 @@
+name: Secure Auto-Sync
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-repo:
+    runs-on: [self-hosted, linux, x64]
+    
+    steps:
+      - name: Fix SSH permissions
+        run: |
+          # Создаем .ssh директорию с правильными правами
+          sudo mkdir -p /home/kind/.ssh
+          sudo chown -R kind:kind /home/kind/.ssh
+          sudo chmod 700 /home/kind/.ssh
+          
+      - name: Setup SSH Environment
+        run: |
+          # Проверяем существование директории
+          if [ ! -d "/home/kind/.ssh" ]; then
+            sudo mkdir -p /home/kind/.ssh
+            sudo chown kind:kind /home/kind/.ssh
+          fi
+          
+          # Устанавливаем корректные права
+          sudo chmod 700 /home/kind/.ssh
+          ls -la /home/kind/ | grep .ssh  # Для диагностики
+          
+          # Создаем файл от имени пользователя kind
+          sudo -u kind bash -c 'echo "${{ secrets.DEPLOY_SSH_KEY }}" > /home/kind/.ssh/github_actions'
+          sudo -u kind bash -c 'chmod 600 /home/kind/.ssh/github_actions'
+          
+          # Добавляем known_hosts
+          echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII9LgFJt1q9Z5JQ7Jg7Jg7Jg7Jg7Jg7Jg7Jg7Jg7Jg" | sudo tee -a /home/kind/.ssh/known_hosts
+          
+          # Тест подключения
+          sudo -u kind bash -c 'ssh -T git@github.com || true'
+
+      - name: Sync Repository
+        run: |
+          cd /home/kind/ansible-cluster
+          sudo -u kind git pull origin main
+          sudo -u kind git add --all
+          sudo -u kind git commit -m "Auto-sync $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes"
+          sudo -u kind git push origin main
